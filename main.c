@@ -35,9 +35,9 @@ void Init() {
 
   /* UART initialisation */
   BRG_SetBaud(9600);
-	U1STA = 0;
+  U1STA = 0;
   U1MODE = 0x8000;
-	U1STASET = 0x1400;
+  U1STASET = 0x1400;
 
   /* PWM Output. */
   /* PRx = (FPB / PWM_FREQ) - 1 */ 
