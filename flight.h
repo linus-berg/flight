@@ -1,11 +1,18 @@
 #ifndef _FLIGHT_
 #define _FLIGHT_
 
+#define _DEBUG 1 
 #define _VERSION_ "0.0.1a"
 #define _SYS_CLK 80000000
 #define _PB_CLK (_SYS_CLK >> ((OSCCON & 0x180000) >> 19))
 #define _PWM_FREQ 8192
-#define _DEBUG 1 
+#define _DISPLAY_PORTF_MASK 0x70
+#define _DISPLAY_PORTG_MASK 0x200
+#define _DISPLAY_PORTD 0x10
+#define _DISPLAY_VBAT 1 << 5
+#define _DISPLAY_VDD 1 << 6
+#define _DISPLAY_DATA 1 << 4
+#define _DISPLAY_RESET 1 << 9
 
 void Init();
 void TX_Byte(unsigned char byte);
@@ -18,7 +25,6 @@ struct {
   int blue;
   int enabled;
 } LED_CON;
-
 
 #define ITOA_BUFSIZ ( 24 )
 char * itoaconv( int num )
