@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <pic32mx.h>
 #include "flight.h"
+#include "display.h"
+#include "analog.h"
 #include <stdint.h>
 
-int spi_send_recv(int data);
-void test_OLED( ){
-  spi_send_recv(0xA5);
-}
+
 int main(void) {
   /* Init all the important shit. */
   Init();
+  MSGEQ_Init();
   TX_ByteMulti("FLIGHT system initialised.", 1);
   TX_ByteMulti("Version: ", 0);
   TX_ByteMulti(_VERSION_, 1);
@@ -21,21 +21,38 @@ int main(void) {
     TX_ByteMulti(itoaconv(_PB_CLK), 1);
     TX_ByteMulti("_PWM_FREQ: ", 0);
     TX_ByteMulti(itoaconv(_PWM_FREQ), 1);
-  #endif 
-  test_OLED();
+    TX_ByteMulti("PR2: ", 0);
+    TX_ByteMulti(itoaconv(PR2), 1);
+    TX_ByteMulti(itoaconv(TRISD), 1);
+    TX_ByteMulti(itoaconv(PORTD), 1);
+  #endif
+  Display_Reset();
+  Display_Logo();
   int i = 0;
-  while(1) {
-    for(i = 0; i <= PR2/2; i++) {
-      OC1RS = i;
-      delay(1);
+  int freq[] = {0, 0, 0, 0, 0, 0, 0};
+  for(;;) {
+    OC1RS = 0;
+    delay(1);
+    OC1RS = 1000;
+    delay(1);
+    PORTD |= _MSGEQ7_RESET;
+    PORTD &= ~_MSGEQ7_RESET;
+    for(i = 0; i < 7; i++) {
+      PORTD &= ~_MSGEQ7_STROBE;
+      delay(2);
+      AD1CON1 |= (0x1 << 1);
+		  while(!(AD1CON1 & (0x1 << 1)));
+		  while(!(AD1CON1 & 0x1));
+		  /* Get the analog value */
+      freq[i] = ADC1BUF0;
+      PORTD |= _MSGEQ7_STROBE;
+    } 
+    for(i = 0; i < 6; i++) {
+      TX_ByteMulti(itoaconv(freq[i]), 0);
+      TX_ByteMulti("    ", 0);
     }
-    for(i = i; i >= 0; i--) {
-      OC1RS = i;
-      delay(1);
-    }
-    delay(1000);
-    OC1RS = PR2;
-    delay(10000);
+    TX_ByteMulti(itoaconv(freq[6]), 1);
+    delay(1);
   }
 }
 
@@ -66,54 +83,20 @@ void Init() {
   OC1CON = 0x6;
   PR2 = (_PB_CLK / _PWM_FREQ) - 1; 
   T2CONSET = 0x8000;
-  OC1R = PR2;
-  OC1RS = PR2/2;
+  OC1R = PR2/2;
+  OC1RS = 200;
   OC1CONSET = 0x8000;
-  
-  /* Display init */
-	PORTF = 0x70;
-	PORTG |= (1 << 9);
-	TRISFCLR = _DISPLAY_PORTF_MASK;
-	TRISGCLR = _DISPLAY_PORTG_MASK;
-  
-  PORTF &= ~_DISPLAY_DATA;
-	delay(10);
-	PORTF &= ~_DISPLAY_VDD;
-	delay(10);
-  spi_send_recv(0xAE);
-	PORTG &= ~_DISPLAY_RESET;
-	delay(10);
-	PORTG |= _DISPLAY_RESET;
-	delay(10);
-	spi_send_recv(0x8D);
-	spi_send_recv(0x14);
-	spi_send_recv(0xD9);
-	spi_send_recv(0xF1);
-	PORTF &= ~_DISPLAY_VBAT;
-	delay(10);
-	spi_send_recv(0xA1);
-	spi_send_recv(0xC8);
-	spi_send_recv(0xDA);
-	spi_send_recv(0x20);
-	spi_send_recv(0xAF);
-  spi_send_recv(0x81);
-  spi_send_recv(0xFF);
+  Display_Init();
 }
 
-int spi_send_recv(int data) {
-	while(!(SPI2STAT & 0x08));
-	SPI2BUF = data;
-	while(!(SPI2STAT & 0x01));
-	return SPI2BUF;
-}
 
 /* Transmit one byte. */
 void TX_Byte(unsigned char byte) {
   /* Write buffer check. */
-  while(U1STA & (1 << 9)); 
+  while (U1STA & (1 << 9)); 
   U1TXREG = byte;
   /* Transmitting check. */
-  while(!(U1STA & (1 << 8)));
+  while (!(U1STA & (1 << 8)));
 }
 
 /* Transmit multiple bytes. */
