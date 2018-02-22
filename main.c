@@ -6,7 +6,6 @@
 #include "analog.h"
 #include <stdint.h>
 
-
 int main(void) {
   /* Init all the important shit. */
   Init();
@@ -29,7 +28,7 @@ int main(void) {
   Display_Logo();
   delay(2000);
   Display_Clear();
-  Display_BarDemo();
+  ///Display_BarDemo();
   /* Some frequency shit */
   int freq[] = {0, 0, 0, 0, 0, 0, 0};
   for(;;) {
@@ -40,13 +39,15 @@ int main(void) {
     PORTD |= _MSGEQ7_RESET;
     PORTD &= ~_MSGEQ7_RESET;
     for(uint8_t i = 0; i < 7; i++) {  
-      freq[i] = MSGEQ_Read();
+      freq[i] = MSGEQ_Read() - 100 < 30 ? 0 : MSGEQ_Read() - 100;
     } 
-    for(uint8_t i = 0; i < 6; i++) {
+    for(uint8_t i = 0; i < 7; i++) {
       TX_ByteMulti(itoaconv(freq[i]), 0);
+      Display_BarGraph(i, freq[i]); 
       TX_ByteMulti("    ", 0);
+      delay(5);;
     }
-    TX_ByteMulti(itoaconv(freq[6]), 1);
+    TX_ByteMulti("", 1);
     delay(1); 
   }
 }

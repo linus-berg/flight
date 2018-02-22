@@ -1,7 +1,9 @@
 /* Written by Linus Gunnarsson */
 #ifndef DISPLAY_LIB 
 #define DISPLAY_LIB
+#include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 #define _DISPLAY_PORTF_MASK 0x70
 #define _DISPLAY_PORTG_MASK 0x200
 #define _DISPLAY_PORTD 0x10
@@ -26,9 +28,19 @@ void Display_Init();
 void Display_Clear();
 void Display_Logo();
 void Display_Letter(uint8_t letter);
-void Display_BarGraph(uint8_t col, int intensity);
+void Display_BarGraph(uint8_t col, uint16_t freq);
 
-static int bars[] = {0, 0, 0, 0, 0, 0, 0};
+static int bars[] = {
+  0x0,
+  INTENSITY_12,
+  INTENSITY_25,
+  INTENSITY_37,
+  INTENSITY_50,
+  INTENSITY_62,
+  INTENSITY_75,
+  INTENSITY_87,
+  INTENSITY_100
+};
 static const int font[][5] = {
   {0xFF, 0x09, 0x09, 0x09, 0x01}, /* F */
   {0xFF, 0x80, 0x80, 0x80, 0x80}, /* L */
@@ -64,37 +76,37 @@ void Display_Clear() {
 
 void Display_Init() {
   /* Display init */
-	PORTF = 0x70;
-	PORTG |= (1 << 9);
-	TRISFCLR = _DISPLAY_PORTF_MASK;
-	TRISGCLR = _DISPLAY_PORTG_MASK;
+  PORTF = 0x70;
+  PORTG |= (1 << 9);
+  TRISFCLR = _DISPLAY_PORTF_MASK;
+  TRISGCLR = _DISPLAY_PORTG_MASK;
   
   PORTF &= ~_DISPLAY_DATA;
-	delay(10);
-	PORTF &= ~_DISPLAY_VDD;
-	delay(10);
+  delay(10);
+  PORTF &= ~_DISPLAY_VDD;
+  delay(10);
   SPI_TX(0xAE);
-	PORTG &= ~_DISPLAY_RESET;
-	delay(10);
-	PORTG |= _DISPLAY_RESET;
-	delay(10);
-	SPI_TX(0x8D);
-	SPI_TX(0x14);
-	SPI_TX(0xD9);
-	SPI_TX(0xF1);
-	PORTF &= ~_DISPLAY_VBAT;
-	delay(10);
-	SPI_TX(0xA1);
-	SPI_TX(0xC8);
+  PORTG &= ~_DISPLAY_RESET;
+  delay(10);
+  PORTG |= _DISPLAY_RESET;
+  delay(10);
+  SPI_TX(0x8D);
+  SPI_TX(0x14);
+  SPI_TX(0xD9);
+  SPI_TX(0xF1);
+  PORTF &= ~_DISPLAY_VBAT;
+  delay(10);
+  SPI_TX(0xA1);
+  SPI_TX(0xC8);
 
-	SPI_TX(0xDA);
-	SPI_TX(0x20);
+  SPI_TX(0xDA);
+  SPI_TX(0x20);
 
   /* Horizontal addressing mode pls */
   SPI_TX(0x20);
   SPI_TX(0x00);
   /* Start VROOM VROOM */
-	SPI_TX(0xAF);
+  SPI_TX(0xAF);
   /* Contrast */
   SPI_TX(0x81);
   SPI_TX(0xFF);
@@ -155,8 +167,9 @@ void Display_Letter(uint8_t letter) {
     delay(50);
   }
 }
-/* Col 0 - 7  */
-void Display_BarGraph(uint8_t col, int intensity) {
+/* Col 0 - 6  */
+void Display_BarGraph(uint8_t col, uint16_t freq) {
+  int intensity = bars[(int)(((100.0 / 1023.0) * freq) / 12.5)];
   PORTF &= ~_DISPLAY_DATA;
   Display_SetPage(0);
   Display_SetColumn(1 + (col * 18), 19 + (col * 18));
