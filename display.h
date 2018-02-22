@@ -176,7 +176,7 @@ void Display_BarGraph(uint8_t col, uint16_t freq) {
   PORTF |= _DISPLAY_DATA;
   uint8_t bits = 0;
   for (uint8_t page = 0; page < 4; page++) {
-    bits = (((0xFF000000 >> (page*8)) & intensity) >> (8 * (3 - page)));
+    bits = (((0xFF000000 >> (page * 8)) & intensity) >> (8 * (3 - page)));
     for (uint8_t col = 0; col <= 18; col++) {
       if (col == 18 || col == 0) {
         SPI_TX(0x0);

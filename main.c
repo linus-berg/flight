@@ -32,10 +32,6 @@ int main(void) {
   /* Some frequency shit */
   int freq[] = {0, 0, 0, 0, 0, 0, 0};
   for(;;) {
-    OC1RS = 0;
-    delay(1);
-    OC1RS = 1000;
-    delay(1);
     PORTD |= _MSGEQ7_RESET;
     PORTD &= ~_MSGEQ7_RESET;
     for(uint8_t i = 0; i < 7; i++) {  
@@ -48,6 +44,11 @@ int main(void) {
       delay(5);;
     }
     TX_ByteMulti("", 1);
+    if (freq[0] > 400) {
+      OC1RS = 1000; 
+    } else {
+      OC1RS = 0;
+    }
     delay(1); 
   }
 }
