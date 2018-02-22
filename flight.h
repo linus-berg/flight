@@ -1,5 +1,7 @@
-#ifndef _FLIGHT_
-#define _FLIGHT_
+#ifndef FLIGHT
+#define FLIGHT
+
+#include <stdint.h>
 
 #define _DEBUG 1 
 #define _VERSION_ "0.0.1a"
@@ -8,8 +10,8 @@
 #define _PWM_FREQ 100 
 
 void Init();
-void TX_Byte(unsigned char byte);
-void TX_ByteMulti(register unsigned char *bytes, char cr);
+void TX_Byte(uint8_t byte);
+void TX_ByteMulti(register uint8_t *bytes, uint8_t cr);
 void BRG_SetBaud(int baud_rate);
 
 struct {
@@ -19,7 +21,7 @@ struct {
   int enabled;
 } LED_CON;
 
-int SPI_TX(int data) {
+int SPI_TX(uint8_t data) {
 	while (!(SPI2STAT & 0x08));
 	SPI2BUF = data;
 	while (!(SPI2STAT & 0x01));

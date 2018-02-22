@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <pic32mx.h>
 #include "flight.h"
 #include "display.h"
@@ -23,12 +24,13 @@ int main(void) {
     TX_ByteMulti(itoaconv(_PWM_FREQ), 1);
     TX_ByteMulti("PR2: ", 0);
     TX_ByteMulti(itoaconv(PR2), 1);
-    TX_ByteMulti(itoaconv(TRISD), 1);
-    TX_ByteMulti(itoaconv(PORTD), 1);
   #endif
-  Display_Reset();
+  Display_Clear(); 
   Display_Logo();
-  int i = 0;
+  delay(2000);
+  Display_Clear();
+  Display_BarDemo();
+  /* Some frequency shit */
   int freq[] = {0, 0, 0, 0, 0, 0, 0};
   for(;;) {
     OC1RS = 0;
@@ -37,22 +39,15 @@ int main(void) {
     delay(1);
     PORTD |= _MSGEQ7_RESET;
     PORTD &= ~_MSGEQ7_RESET;
-    for(i = 0; i < 7; i++) {
-      PORTD &= ~_MSGEQ7_STROBE;
-      delay(2);
-      AD1CON1 |= (0x1 << 1);
-		  while(!(AD1CON1 & (0x1 << 1)));
-		  while(!(AD1CON1 & 0x1));
-		  /* Get the analog value */
-      freq[i] = ADC1BUF0;
-      PORTD |= _MSGEQ7_STROBE;
+    for(uint8_t i = 0; i < 7; i++) {  
+      freq[i] = MSGEQ_Read();
     } 
-    for(i = 0; i < 6; i++) {
+    for(uint8_t i = 0; i < 6; i++) {
       TX_ByteMulti(itoaconv(freq[i]), 0);
       TX_ByteMulti("    ", 0);
     }
     TX_ByteMulti(itoaconv(freq[6]), 1);
-    delay(1);
+    delay(1); 
   }
 }
 
@@ -91,7 +86,7 @@ void Init() {
 
 
 /* Transmit one byte. */
-void TX_Byte(unsigned char byte) {
+void TX_Byte(uint8_t byte) {
   /* Write buffer check. */
   while (U1STA & (1 << 9)); 
   U1TXREG = byte;
@@ -100,7 +95,7 @@ void TX_Byte(unsigned char byte) {
 }
 
 /* Transmit multiple bytes. */
-void TX_ByteMulti(register unsigned char *bytes, char cr) {
+void TX_ByteMulti(register uint8_t  *bytes, uint8_t cr) {
   while (*bytes) {
     TX_Byte(*bytes);
     bytes++;

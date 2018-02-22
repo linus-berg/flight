@@ -20,4 +20,17 @@ void MSGEQ_Init() {
   PORTD |= _MSGEQ7_STROBE;
   PORTD &= ~_MSGEQ7_RESET;
 }
+
+int MSGEQ_Read() {
+ int freq = 0;
+ PORTD &= ~_MSGEQ7_STROBE;
+ delay(1);
+ AD1CON1 |= (0x1 << 1);
+ while(!(AD1CON1 & (0x1 << 1)));
+ while(!(AD1CON1 & 0x1));
+ /* Get the analog value */
+ freq = ADC1BUF0;
+ PORTD |= _MSGEQ7_STROBE;
+ return freq;
+}
 #endif
