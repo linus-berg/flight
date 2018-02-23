@@ -6,6 +6,7 @@
 #define _MSGEQ7_RESET 0x4
 
 void MSGEQ_Init();
+int MSGEQ_Read();
 
 void MSGEQ_Init() {
   AD1PCFG &= ~_MSGEQ7_READ;
@@ -15,6 +16,7 @@ void MSGEQ_Init() {
 	AD1CON2 = 0x0;
   AD1CON3 |= (0x1 << 15);
   AD1CON1 |= (0x1 << 15);
+ 
   /* Strobe & Reset */
   TRISDCLR = 0x6;
   PORTD |= _MSGEQ7_STROBE;
@@ -24,7 +26,6 @@ void MSGEQ_Init() {
 int MSGEQ_Read() {
  int freq = 0;
  PORTD &= ~_MSGEQ7_STROBE;
- delay(1);
  AD1CON1 |= (0x1 << 1);
  while(!(AD1CON1 & (0x1 << 1)));
  while(!(AD1CON1 & 0x1));

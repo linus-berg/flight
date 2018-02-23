@@ -10,15 +10,12 @@
 #define _PWM_FREQ 100 
 
 void Init();
-void TX_Byte(uint8_t byte);
-void TX_ByteMulti(register uint8_t *bytes, uint8_t cr);
-void BRG_SetBaud(int baud_rate);
 
 struct {
-  int red;
-  int green;
-  int blue;
-  int enabled;
+  uint8_t red;
+  uint8_t green;
+  uint8_t blue;
+  uint8_t enabled;
 } LED_CON;
 
 int SPI_TX(uint8_t data) {

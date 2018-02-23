@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <math.h>
+#include "UART.h"
 #define _DISPLAY_PORTF_MASK 0x70
 #define _DISPLAY_PORTG_MASK 0x200
 #define _DISPLAY_PORTD 0x10
@@ -12,35 +13,14 @@
 #define _DISPLAY_DATA (1 << 4)
 #define _DISPLAY_RESET (1 << 9) 
 
-/* Bar graph intensity numbers */
-#define INTENSITY_12  0x000000F0
-#define INTENSITY_25  0x000000FF
-#define INTENSITY_37  0x0000F0FF
-#define INTENSITY_50  0x0000FFFF
-#define INTENSITY_62  0x00F0FFFF
-#define INTENSITY_75  0x00FFFFFF
-#define INTENSITY_87  0xF0FFFFFF
-#define INTENSITY_100 0xFFFFFFFF
-
 void Display_SetColumn(uint8_t start_col, uint8_t end_col);
 void Display_SetPage(uint8_t page);
 void Display_Init();
 void Display_Clear();
-void Display_Logo();
 void Display_Letter(uint8_t letter);
-void Display_BarGraph(uint8_t col, uint16_t freq);
+void Display_Bar(uint8_t col, uint16_t freq);
+void Display_Logo();
 
-static int bars[] = {
-  0x0,
-  INTENSITY_12,
-  INTENSITY_25,
-  INTENSITY_37,
-  INTENSITY_50,
-  INTENSITY_62,
-  INTENSITY_75,
-  INTENSITY_87,
-  INTENSITY_100
-};
 static const int font[][5] = {
   {0xFF, 0x09, 0x09, 0x09, 0x01}, /* F */
   {0xFF, 0x80, 0x80, 0x80, 0x80}, /* L */
@@ -63,7 +43,7 @@ void Display_SetPage(uint8_t page) {
 }
 
 void Display_Clear() {
-  for (uint8_t row = 0; row < 9; row++) {
+  for (uint8_t row = 0; row < 4; row++) {
     PORTF &= ~_DISPLAY_DATA;
     Display_SetPage(row);
     Display_SetColumn(0, 0x7F);
@@ -90,6 +70,7 @@ void Display_Init() {
   delay(10);
   PORTG |= _DISPLAY_RESET;
   delay(10);
+  
   SPI_TX(0x8D);
   SPI_TX(0x14);
   SPI_TX(0xD9);
@@ -112,88 +93,72 @@ void Display_Init() {
   SPI_TX(0xFF);
 }
 
+void Display_Letter(uint8_t letter) {
+  for (uint8_t col = 0; col < 5; col++) {
+    SPI_TX(font[letter][col]);
+  }
+}
+
+void Display_Bar(uint8_t col, uint16_t freq) {
+  unsigned int intensity = 0xFFFFFFFF;
+  intensity = intensity >> (uint8_t)(32 - (32.0 / 1023.0) * freq);
+  
+  PORTF &= ~_DISPLAY_DATA;
+  Display_SetPage(0);
+  Display_SetColumn(1 + (col * 18), 19 + (col * 18));
+  PORTF |= _DISPLAY_DATA;
+
+  uint8_t bits;
+  for (uint8_t page = 0; page < 4; page++) {
+    bits = (((0xFF000000 >> (page * 8)) & intensity) >> (8 * (3 - page)));
+    if (bits < 0xFF && bits != 0) {
+      while ((bits & 0x80) == 0) bits <<= 1;
+    }
+    for (uint8_t col = 0; col <= 18; col++) {
+      SPI_TX(col == 18 || col == 0 ? 0x0 : bits);
+    }
+  }
+}
+
 void Display_Logo(){
   /* Top Border. */
   PORTF &= ~_DISPLAY_DATA;
   Display_SetPage(0);
   Display_SetColumn(0, 0x7F); 
   PORTF |= _DISPLAY_DATA;
+
   for (uint8_t col = 0; col <= 127; col++) {
-    if (col % 2 == 0) {
-      SPI_TX(0x81);
-    } else {
-      SPI_TX(0xBD);
-    }
+    SPI_TX(col % 2 == 0 ? 0x81 : 0xBD);
     delay(10);
   }
+
   /* Bottom Border. */
   PORTF &= ~_DISPLAY_DATA;
   Display_SetPage(3);
   Display_SetColumn(0, 0x7F);
   PORTF |= _DISPLAY_DATA;
+
   for (uint8_t col = 0; col <= 127; col++) {
-    if (col % 2 == 0) {
-      SPI_TX(0x81);
-    } else {
-      SPI_TX(0xBD);
-    }
+    SPI_TX(col % 2 == 0 ? 0x81 : 0xBD);
     delay(10);
   }
-  /* R G B */
+
+  /* FLIGHT */
   PORTF &= ~_DISPLAY_DATA;
   Display_SetPage(1);
   Display_SetColumn(46, 0x7F);
   PORTF |= _DISPLAY_DATA;
+  
   Display_Letter(0);
   SPI_TX(0x0);
-  
   Display_Letter(1);
   SPI_TX(0x0);
-  
   Display_Letter(2);
   SPI_TX(0x0);
-  
   Display_Letter(3);
   SPI_TX(0x0);
-  
   Display_Letter(4);
   SPI_TX(0x0);
   Display_Letter(5);  
-}
-
-void Display_Letter(uint8_t letter) {
-  for (int col = 0; col < 5; col++) {
-    SPI_TX(font[letter][col]);
-    delay(50);
-  }
-}
-/* Col 0 - 6  */
-void Display_BarGraph(uint8_t col, uint16_t freq) {
-  int intensity = bars[(int)(((100.0 / 1023.0) * freq) / 12.5)];
-  PORTF &= ~_DISPLAY_DATA;
-  Display_SetPage(0);
-  Display_SetColumn(1 + (col * 18), 19 + (col * 18));
-  PORTF |= _DISPLAY_DATA;
-  uint8_t bits = 0;
-  for (uint8_t page = 0; page < 4; page++) {
-    bits = (((0xFF000000 >> (page * 8)) & intensity) >> (8 * (3 - page)));
-    for (uint8_t col = 0; col <= 18; col++) {
-      if (col == 18 || col == 0) {
-        SPI_TX(0x0);
-      } else {
-        SPI_TX(bits);
-      }
-    }
-  }
-}
-
-void Display_BarDemo() {
-  int intense[] = {INTENSITY_100, INTENSITY_75, INTENSITY_50, INTENSITY_12};
-  int i = 0;
-  for (;;) {
-    Display_BarGraph(i % 4, intense[(i + i / 2) % 4]);
-    delay(100);
-    i++;
-  }
 }
 #endif
