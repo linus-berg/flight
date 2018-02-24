@@ -3,8 +3,9 @@
 #define DISPLAY_LIB
 #include <stdio.h>
 #include <stdint.h>
-#include <math.h>
-#include "UART.h"
+#include "math.h"
+#include "flight.h"
+
 #define _DISPLAY_PORTF_MASK 0x70
 #define _DISPLAY_PORTG_MASK 0x200
 #define _DISPLAY_PORTD 0x10
@@ -13,14 +14,15 @@
 #define _DISPLAY_DATA (1 << 4)
 #define _DISPLAY_RESET (1 << 9) 
 
+void Display_Init();
 void Display_SetColumn(uint8_t start_col, uint8_t end_col);
 void Display_SetPage(uint8_t page);
-void Display_Init();
 void Display_Clear();
 void Display_Letter(uint8_t letter);
 void Display_Bar(uint8_t col, uint16_t freq);
 void Display_Logo();
 
+static int bars[] = {0, 0, 0, 0, 0, 0, 0};
 static const int font[][5] = {
   {0xFF, 0x09, 0x09, 0x09, 0x01}, /* F */
   {0xFF, 0x80, 0x80, 0x80, 0x80}, /* L */
@@ -29,30 +31,6 @@ static const int font[][5] = {
   {0xFF, 0x18, 0x18, 0x18, 0xFF}, /* H */
   {0x01, 0x01, 0xFF, 0x01, 0x01}  /* T */
 };
-
-void Display_SetColumn(uint8_t start_col, uint8_t end_col) {
-  SPI_TX(0x21);
-  SPI_TX(start_col % 128);
-  SPI_TX(end_col);
-}
-
-void Display_SetPage(uint8_t page) {
-  SPI_TX(0x22);
-  SPI_TX(page % 4);
-  SPI_TX(3);
-}
-
-void Display_Clear() {
-  for (uint8_t row = 0; row < 4; row++) {
-    PORTF &= ~_DISPLAY_DATA;
-    Display_SetPage(row);
-    Display_SetColumn(0, 0x7F);
-    PORTF |= _DISPLAY_DATA;
-    for (uint8_t col = 0; col <= 127; col++) {
-      SPI_TX(0x0);
-    }
-  }
-}
 
 void Display_Init() {
   /* Display init */
@@ -93,6 +71,30 @@ void Display_Init() {
   SPI_TX(0xFF);
 }
 
+inline void Display_SetColumn(uint8_t start_col, uint8_t end_col) {
+  SPI_TX(0x21);
+  SPI_TX(start_col % 128);
+  SPI_TX(end_col);
+}
+
+inline void Display_SetPage(uint8_t page) {
+  SPI_TX(0x22);
+  SPI_TX(page % 4);
+  SPI_TX(3);
+}
+
+void Display_Clear() {
+  for (uint8_t row = 0; row < 4; row++) {
+    PORTF &= ~_DISPLAY_DATA;
+    Display_SetPage(row);
+    Display_SetColumn(0, 0x7F);
+    PORTF |= _DISPLAY_DATA;
+    for (uint8_t col = 0; col <= 127; col++) {
+      SPI_TX(0x0);
+    }
+  }
+}
+
 void Display_Letter(uint8_t letter) {
   for (uint8_t col = 0; col < 5; col++) {
     SPI_TX(font[letter][col]);
@@ -100,6 +102,11 @@ void Display_Letter(uint8_t letter) {
 }
 
 void Display_Bar(uint8_t col, uint16_t freq) {
+  if (freq == bars[col]) {
+    return;
+  } else {
+    bars[col] = freq;
+  }
   unsigned int intensity = 0xFFFFFFFF;
   intensity = intensity >> (uint8_t)(32 - (32.0 / 1023.0) * freq);
   
@@ -112,7 +119,8 @@ void Display_Bar(uint8_t col, uint16_t freq) {
   for (uint8_t page = 0; page < 4; page++) {
     bits = (((0xFF000000 >> (page * 8)) & intensity) >> (8 * (3 - page)));
     if (bits < 0xFF && bits != 0) {
-      while ((bits & 0x80) == 0) bits <<= 1;
+      while ((bits & 0x80) == 0)
+        bits <<= 1;
     }
     for (uint8_t col = 0; col <= 18; col++) {
       SPI_TX(col == 18 || col == 0 ? 0x0 : bits);
@@ -120,7 +128,7 @@ void Display_Bar(uint8_t col, uint16_t freq) {
   }
 }
 
-void Display_Logo(){
+void Display_Logo() {
   /* Top Border. */
   PORTF &= ~_DISPLAY_DATA;
   Display_SetPage(0);
@@ -129,7 +137,7 @@ void Display_Logo(){
 
   for (uint8_t col = 0; col <= 127; col++) {
     SPI_TX(col % 2 == 0 ? 0x81 : 0xBD);
-    delay(10);
+    delay(8);
   }
 
   /* Bottom Border. */
@@ -140,7 +148,7 @@ void Display_Logo(){
 
   for (uint8_t col = 0; col <= 127; col++) {
     SPI_TX(col % 2 == 0 ? 0x81 : 0xBD);
-    delay(10);
+    delay(8);
   }
 
   /* FLIGHT */

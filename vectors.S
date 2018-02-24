@@ -119,25 +119,6 @@ _gen_exception:
 
 .end _gen_exception
 
-.global delay
-delay:
-  PUSH $a0
-  ble $a0, $zero, delay_return
-  nop
-  loop_outer:
-    addi $t0, $zero, 7000 
-    loop_inner:
-      addi $t0, $t0, -1
-      bne $t0, 0, loop_inner
-      nop
-    addi $a0, $a0, -1
-    bne $a0, 0, loop_outer
-    nop
-  delay_return:
-  POP $a0
-  jr $ra
-  nop
-
 .global enable_interrupt
 enable_interrupt:
   ei

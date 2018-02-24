@@ -18,6 +18,10 @@ struct {
   uint8_t enabled;
 } LED_CON;
 
+void delay(int delay) {
+  for(int i = 0; i < delay; i++);
+}
+
 int SPI_TX(uint8_t data) {
 	while (!(SPI2STAT & 0x08));
 	SPI2BUF = data;

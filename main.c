@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <pic32mx.h>
-#include "flight.h"
-#include "display.h"
-#include "msgeq.h"
-#include "UART.h"
+#include "include/flight.h"
+#include "include/display.h"
+#include "include/msgeq.h"
+#include "include/UART.h"
 
 void user_isr() {
   uint8_t rx;
@@ -55,7 +55,7 @@ int main(void) {
       Display_Bar(i, freq[i]);
       //TX_ByteMulti(itoaconv(freq[i]), 0);
       //TX_ByteMulti("    ", 0);
-      delay(2);
+      delay(1);
     } 
     //TX_ByteMulti("", 1);
     OC1RS = (400.0 / 950) * (freq[0] + freq[1]) / 2;
