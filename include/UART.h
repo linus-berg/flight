@@ -25,8 +25,6 @@ void UART_Init(volatile unsigned *sta, volatile unsigned *mode,
   *sta = 0;
   *mode = mode_con;
   *sta |= sta_con;
-  IPC(6) = 0x8;
-  IEC(0) = 1 << 27; 
 }
 /* Transmit one byte. */
 void UART_TX(volatile unsigned *tx, volatile unsigned *sta, uint8_t byte) {
