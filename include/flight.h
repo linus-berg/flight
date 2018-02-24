@@ -1,11 +1,9 @@
-#ifndef FLIGHT
-#define FLIGHT
+#ifndef FLIGHT_H_
+#define FLIGHT_H_
 
 #include <stdint.h>
 #include "UART.h"
 #include "sys.h"
-#define _DEBUG 1 
-#define _VERSION_ "0.0.1a"
 
 void Init();
 extern void _enable_interrupt();
@@ -21,7 +19,7 @@ void delay(int delay) {
   for(int i = 0; i < delay; i++);
 }
 
-int SPI_TX(uint8_t data) {
+int spi_TX(uint8_t data) {
 	while (!(SPI2STAT & 0x08));
 	SPI2BUF = data;
 	while (!(SPI2STAT & 0x01));

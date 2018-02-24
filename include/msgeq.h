@@ -12,18 +12,18 @@
 *
 * AUTHOR: Linus Gunnarsson    
 */
-#ifndef MSGEQ7 
-#define MSGEQ7 
+#ifndef MSGEQ7_H_
+#define MSGEQ7_H_
 
 #define _MSGEQ7_STROBE 0x2
 #define _MSGEQ7_RESET 0x4
 
-void MSGEQ_Init(volatile uint8_t port, uint8_t port_bit, uint8_t port_an);
-int MSGEQ_Read();
+void msgeq_Init(volatile unsigned *port, uint8_t port_bit, uint8_t port_an);
+int msgeq_Read();
 
-void MSGEQ_Init(volatile uint8_t port, uint8_t port_bit, uint8_t port_an) {
+void msgeq_Init(volatile unsigned *port, uint8_t port_bit, uint8_t port_an) {
   AD1PCFG &= ~(0x1 << port_an);
-  port |= (0x1 << port_bit);
+  *port |= (0x1 << port_bit);
   AD1CON1 = (0x4 << 8) | (0x7 << 5);
 
 	AD1CON2 = 0x0;
@@ -37,7 +37,7 @@ void MSGEQ_Init(volatile uint8_t port, uint8_t port_bit, uint8_t port_an) {
   PORTD &= ~_MSGEQ7_RESET;
 }
 
-int MSGEQ_Read() {
+int msgeq_Read() {
  int freq = 0;
  PORTD &= ~_MSGEQ7_STROBE;
  AD1CON1 |= (0x1 << 1);

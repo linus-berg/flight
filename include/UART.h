@@ -9,25 +9,25 @@
 *
 * AUTHOR: Linus Gunnarsson    
 */
-#ifndef UART_H
-#define UART_H
+#ifndef UART_H_
+#define UART_H_
 #include <stdint.h>
 #include "sys.h"
-void UART_TX(volatile unsigned *tx, volatile unsigned *sta, uint8_t byte);
-void UART_String(volatile unsigned *tx, volatile unsigned *sta,
+void uart_TX(volatile unsigned *tx, volatile unsigned *sta, uint8_t byte);
+void uart_String(volatile unsigned *tx, volatile unsigned *sta,
                  register uint8_t *bytes, uint8_t cr);
-void UART_Baud(volatile unsigned *brg, int baud_rate);
+void uart_Baud(volatile unsigned *brg, int baud_rate);
 
-void UART_Init(volatile unsigned *sta, volatile unsigned *mode,
+void uart_Init(volatile unsigned *sta, volatile unsigned *mode,
                volatile unsigned *brg, unsigned mode_con,
                unsigned sta_con, int baud_rate) {
-  UART_Baud(brg, baud_rate);
+  uart_Baud(brg, baud_rate);
   *sta = 0;
   *mode = mode_con;
   *sta |= sta_con;
 }
 /* Transmit one byte. */
-void UART_TX(volatile unsigned *tx, volatile unsigned *sta, uint8_t byte) {
+void uart_TX(volatile unsigned *tx, volatile unsigned *sta, uint8_t byte) {
   /* Write buffer check. */
   while (*sta & (1 << 9)); 
   *tx = byte;
@@ -35,19 +35,19 @@ void UART_TX(volatile unsigned *tx, volatile unsigned *sta, uint8_t byte) {
 }
 
 /* Transmit multiple bytes. */
-void UART_String(volatile unsigned *tx, volatile unsigned *sta,
+void uart_String(volatile unsigned *tx, volatile unsigned *sta,
                  register uint8_t  *bytes, uint8_t cr) {
   while (*bytes) {
-    UART_TX(tx, sta, *bytes);
+    uart_TX(tx, sta, *bytes);
     bytes++;
   }
   if (cr) {
-    UART_TX(tx, sta, 0xA);
+    uart_TX(tx, sta, 0xA);
   }
 }
 
-void UART_Baud(volatile unsigned *brg, int baud_rate) {
+void uart_Baud(volatile unsigned *brg, int baud_rate) {
   /* Peripheral clock */
-  *brg = (_PB_CLK / (16 * baud_rate)) - 1;
+  *brg = (PB_CLK / (16 * baud_rate)) - 1;
 }
 #endif
