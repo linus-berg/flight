@@ -5,7 +5,7 @@
 * FUNCTIONS:
 *   void Display_Init();
 *   void Display_SetColumn(start_col, end_col);
-*   void Display_SetPage(page);
+*   void Display_SetPage(page, end_page);
 *   void Display_Clear();
 *   void Display_Letter(letter);
 *   void Display_Bar(col, freq);
@@ -24,7 +24,6 @@
 
 #define _DISPLAY_PORTF_MASK 0x70
 #define _DISPLAY_PORTG_MASK 0x200
-#define _DISPLAY_PORTD 0x10
 #define _DISPLAY_VBAT (1 << 5)
 #define _DISPLAY_VDD (1 << 6)
 #define _DISPLAY_DATA (1 << 4)
@@ -32,7 +31,7 @@
 
 void Display_Init();
 void Display_SetColumn(uint8_t start_col, uint8_t end_col);
-void Display_SetPage(uint8_t page);
+void Display_SetPage(uint8_t page, uint8_t end_page);
 void Display_Clear();
 void Display_Letter(uint8_t letter);
 void Display_Bar(uint8_t col, uint16_t freq);
@@ -93,16 +92,16 @@ inline void Display_SetColumn(uint8_t start_col, uint8_t end_col) {
   SPI_TX(end_col);
 }
 
-inline void Display_SetPage(uint8_t page) {
+inline void Display_SetPage(uint8_t page, uint8_t end_page) {
   SPI_TX(0x22);
   SPI_TX(page % 4);
-  SPI_TX(3);
+  SPI_TX(end_page % 4);
 }
 
 void Display_Clear() {
   for (uint8_t row = 0; row < 4; row++) {
     PORTF &= ~_DISPLAY_DATA;
-    Display_SetPage(row);
+    Display_SetPage(row, 3);
     Display_SetColumn(0, 0x7F);
     PORTF |= _DISPLAY_DATA;
     for (uint8_t col = 0; col <= 127; col++) {
@@ -127,7 +126,7 @@ void Display_Bar(uint8_t col, uint16_t freq) {
   intensity = intensity >> (uint8_t)(32 - (32.0 / 1023.0) * freq);
   
   PORTF &= ~_DISPLAY_DATA;
-  Display_SetPage(0);
+  Display_SetPage(0, 3);
   Display_SetColumn(1 + (col * 18), 19 + (col * 18));
   PORTF |= _DISPLAY_DATA;
 
@@ -147,7 +146,7 @@ void Display_Bar(uint8_t col, uint16_t freq) {
 void Display_Logo() {
   /* Top Border. */
   PORTF &= ~_DISPLAY_DATA;
-  Display_SetPage(0);
+  Display_SetPage(0, 0);
   Display_SetColumn(0, 0x7F); 
   PORTF |= _DISPLAY_DATA;
 
@@ -158,7 +157,7 @@ void Display_Logo() {
 
   /* Bottom Border. */
   PORTF &= ~_DISPLAY_DATA;
-  Display_SetPage(3);
+  Display_SetPage(3, 3);
   Display_SetColumn(0, 0x7F);
   PORTF |= _DISPLAY_DATA;
 
@@ -169,7 +168,7 @@ void Display_Logo() {
 
   /* FLIGHT */
   PORTF &= ~_DISPLAY_DATA;
-  Display_SetPage(1);
+  Display_SetPage(1, 1);
   Display_SetColumn(46, 0x7F);
   PORTF |= _DISPLAY_DATA;
   

@@ -12,16 +12,16 @@ void user_isr() {
     rx = U1RXREG & 0xFF;
     if (rx == 0x1) {
       LED_CON.red = LED_CON.red ? 0 : 1;
-      TX_ByteMulti("Red was set to ", 0);
-      TX_ByteMulti(itoaconv(LED_CON.red), 1);
+      UART_String(&U1TXREG, &U1STA, "Red was set to ", 0);
+      UART_String(&U1TXREG, &U1STA, itoaconv(LED_CON.red), 1);
     } else if (rx == 0x2) {
       LED_CON.green = LED_CON.green ? 0 : 1;
-      TX_ByteMulti("Green was set to ", 0);
-      TX_ByteMulti(itoaconv(LED_CON.green), 1);
+      UART_String(&U1TXREG, &U1STA, "Green was set to ", 0);
+      UART_String(&U1TXREG, &U1STA, itoaconv(LED_CON.green), 1);
     } else if (rx = 0x3) {
       LED_CON.blue = LED_CON.blue ? 0 : 1;
-      TX_ByteMulti("Blue was set to ", 0);
-      TX_ByteMulti(itoaconv(LED_CON.blue), 1);
+      UART_String(&U1TXREG, &U1STA, "Blue was set to ", 0);
+      UART_String(&U1TXREG, &U1STA, itoaconv(LED_CON.blue), 1);
     }
   }
   IFS(0) &= ~(1 << 27);
@@ -30,19 +30,22 @@ void user_isr() {
 int main(void) {
   /* Init all the important shit. */
   Init();
-  TX_ByteMulti("FLIGHT system initialised.", 1);
-  TX_ByteMulti("Version: ", 0);
-  TX_ByteMulti(_VERSION_, 1);
+  UART_Init(&U1STA, &U1MODE, &U1BRG, 0x8000, 0x1400, 9600);
+  IPC(6) |= 0x8;
+  IEC(0) |= 1 << 27; 
+  UART_String(&U1TXREG, &U1STA, "FLIGHT system initialised.", 1);
+  UART_String(&U1TXREG, &U1STA, "Version: ", 0);
+  UART_String(&U1TXREG, &U1STA, _VERSION_, 1);
   #if _DEBUG
-    TX_ByteMulti("__Debug Information__", 1);
-    TX_ByteMulti("_SYS_CLK: ", 0);
-    TX_ByteMulti(itoaconv(_SYS_CLK), 1);
-    TX_ByteMulti("_PB_CLK: ", 0);
-    TX_ByteMulti(itoaconv(_PB_CLK), 1);
-    TX_ByteMulti("_PWM_FREQ: ", 0);
-    TX_ByteMulti(itoaconv(_PWM_FREQ), 1);
-    TX_ByteMulti("PR2: ", 0);
-    TX_ByteMulti(itoaconv(PR2), 1);
+    UART_String(&U1TXREG, &U1STA, "__Debug Information__", 1);
+    UART_String(&U1TXREG, &U1STA, "_SYS_CLK: ", 0);
+    UART_String(&U1TXREG, &U1STA, itoaconv(_SYS_CLK), 1);
+    UART_String(&U1TXREG, &U1STA, "_PB_CLK: ", 0);
+    UART_String(&U1TXREG, &U1STA, itoaconv(_PB_CLK), 1);
+    UART_String(&U1TXREG, &U1STA, "_PWM_FREQ: ", 0);
+    UART_String(&U1TXREG, &U1STA, itoaconv(_PWM_FREQ), 1);
+    UART_String(&U1TXREG, &U1STA, "PR2: ", 0);
+    UART_String(&U1TXREG, &U1STA, itoaconv(PR2), 1);
   #endif
 
   /* Some frequency shit */
@@ -53,11 +56,8 @@ int main(void) {
     for (uint8_t i = 0; i < 7; i++) {  
       freq[i] = MSGEQ_Read() - 100 < 30 ? 0 : MSGEQ_Read() - 100;
       Display_Bar(i, freq[i]);
-      //TX_ByteMulti(itoaconv(freq[i]), 0);
-      //TX_ByteMulti("    ", 0);
       delay(1);
     } 
-    //TX_ByteMulti("", 1);
     OC1RS = (400.0 / 950) * (freq[0] + freq[1]) / 2;
   }
 }
@@ -76,14 +76,6 @@ void Init() {
   LED_CON.green = 1;
   LED_CON.blue = 1;
   LED_CON.enabled = 1;
-  
-  /* UART initialisation */
-  BRG_SetBaud(9600);
-  U1STA = 0;
-  U1MODE = 0x8000;
-  U1STASET = 0x1400;
-  IPC(6) = 0x8;
-  IEC(0) = 1 << 27; 
   
   /* PWM Output. */
   /* PRx = (FPB / PWM_FREQ) - 1 */ 

@@ -1,45 +1,55 @@
 /*
 * FILENAME: UART.h
 * DESCRIPTION:
-*   UART interfacing with computer via USB (via U1STA).
+*   UART interfacing.
 * FUNCTIONS:
-*   void TX_Byte(byte)
-*   void TX_ByteMulti(bytes, carriage return)
-* NOTES:
-*   Only communicates over UART1.
+*   void UART_TX(TXREG, STA, byte)
+*   void UART_String(TXREG, STA, bytes, carriage return)
+*   void UART_Baud(BRG, baudrate)
 *
 * AUTHOR: Linus Gunnarsson    
 */
 #ifndef UART_H
 #define UART_H
 #include <stdint.h>
+#include "sys.h"
+void UART_TX(volatile unsigned *tx, volatile unsigned *sta, uint8_t byte);
+void UART_String(volatile unsigned *tx, volatile unsigned *sta,
+                 register uint8_t *bytes, uint8_t cr);
+void UART_Baud(volatile unsigned *brg, int baud_rate);
 
-void TX_Byte(uint8_t byte);
-void TX_ByteMulti(register uint8_t *bytes, uint8_t cr);
-void BRG_SetBaud(int baud_rate);
-
+void UART_Init(volatile unsigned *sta, volatile unsigned *mode,
+               volatile unsigned *brg, unsigned mode_con,
+               unsigned sta_con, int baud_rate) {
+  UART_Baud(brg, baud_rate);
+  *sta = 0;
+  *mode = mode_con;
+  *sta |= sta_con;
+  IPC(6) = 0x8;
+  IEC(0) = 1 << 27; 
+}
 /* Transmit one byte. */
-void TX_Byte(uint8_t byte) {
+void UART_TX(volatile unsigned *tx, volatile unsigned *sta, uint8_t byte) {
   /* Write buffer check. */
-  while (U1STA & (1 << 9)); 
-  U1TXREG = byte;
-  /* Transmitting check. */
-  while (!(U1STA & (1 << 8)));
+  while (*sta & (1 << 9)); 
+  *tx = byte;
+  while (!(*sta & (1 << 8)));
 }
 
 /* Transmit multiple bytes. */
-void TX_ByteMulti(register uint8_t  *bytes, uint8_t cr) {
+void UART_String(volatile unsigned *tx, volatile unsigned *sta,
+                 register uint8_t  *bytes, uint8_t cr) {
   while (*bytes) {
-    TX_Byte(*bytes);
+    UART_TX(tx, sta, *bytes);
     bytes++;
   }
   if (cr) {
-    TX_Byte(0xA);
+    UART_TX(tx, sta, 0xA);
   }
 }
 
-void BRG_SetBaud(int baud_rate) {
+void UART_Baud(volatile unsigned *brg, int baud_rate) {
   /* Peripheral clock */
-  U1BRG = (_PB_CLK / (16 * baud_rate)) - 1;
+  *brg = (_PB_CLK / (16 * baud_rate)) - 1;
 }
 #endif

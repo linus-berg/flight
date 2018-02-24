@@ -2,12 +2,10 @@
 #define FLIGHT
 
 #include <stdint.h>
-
+#include "UART.h"
+#include "sys.h"
 #define _DEBUG 1 
 #define _VERSION_ "0.0.1a"
-#define _SYS_CLK 80000000
-#define _PB_CLK (_SYS_CLK >> ((OSCCON & 0x180000) >> 19))
-#define _PWM_FREQ 100 
 
 void Init();
 extern void _enable_interrupt();
