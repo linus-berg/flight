@@ -9,7 +9,7 @@
 
 void Init();
 extern void _enable_interrupt();
-
+extern void _delay();
 struct {
   uint8_t red;
   uint8_t green;

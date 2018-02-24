@@ -91,7 +91,7 @@ void Init() {
   Display_Init();
   Display_Clear(); 
   Display_Logo();
-  delay(2000);
+  _delay(2000);
   Display_Clear();
   _enable_interrupt();
 }

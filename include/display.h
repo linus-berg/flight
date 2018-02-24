@@ -99,11 +99,11 @@ inline void Display_SetPage(uint8_t page, uint8_t end_page) {
 }
 
 void Display_Clear() {
+  PORTF &= ~_DISPLAY_DATA;
+  Display_SetPage(0, 3);
+  Display_SetColumn(0, 0x7F);
+  PORTF |= _DISPLAY_DATA;
   for (uint8_t row = 0; row < 4; row++) {
-    PORTF &= ~_DISPLAY_DATA;
-    Display_SetPage(row, 3);
-    Display_SetColumn(0, 0x7F);
-    PORTF |= _DISPLAY_DATA;
     for (uint8_t col = 0; col <= 127; col++) {
       SPI_TX(0x0);
     }
@@ -152,7 +152,7 @@ void Display_Logo() {
 
   for (uint8_t col = 0; col <= 127; col++) {
     SPI_TX(col % 2 == 0 ? 0x81 : 0xBD);
-    delay(8);
+    _delay(8);
   }
 
   /* Bottom Border. */
@@ -163,7 +163,7 @@ void Display_Logo() {
 
   for (uint8_t col = 0; col <= 127; col++) {
     SPI_TX(col % 2 == 0 ? 0x81 : 0xBD);
-    delay(8);
+    _delay(8);
   }
 
   /* FLIGHT */
