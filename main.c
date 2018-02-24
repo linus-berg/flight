@@ -95,7 +95,7 @@ void Init() {
   OC1CONSET = 0x8000;
 
   /* Library inits */ 
-  MSGEQ_Init();
+  MSGEQ_Init(TRISB, 4, 4);
   Display_Init();
   Display_Clear(); 
   Display_Logo();

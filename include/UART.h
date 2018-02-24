@@ -1,3 +1,15 @@
+/*
+* FILENAME: UART.h
+* DESCRIPTION:
+*   UART interfacing with computer via USB (via U1STA).
+* FUNCTIONS:
+*   void TX_Byte(byte)
+*   void TX_ByteMulti(bytes, carriage return)
+* NOTES:
+*   Only communicates over UART1.
+*
+* AUTHOR: Linus Gunnarsson    
+*/
 #ifndef UART_H
 #define UART_H
 #include <stdint.h>

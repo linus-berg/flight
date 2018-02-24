@@ -1,4 +1,20 @@
-/* Written by Linus Gunnarsson */
+/* 
+* FILENAME: display.h
+* DESCRIPTION:
+*   Various display functions for SSD1306 (128x32).
+* FUNCTIONS:
+*   void Display_Init();
+*   void Display_SetColumn(start_col, end_col);
+*   void Display_SetPage(page);
+*   void Display_Clear();
+*   void Display_Letter(letter);
+*   void Display_Bar(col, freq);
+*   void Display_Logo();
+* NOTES:
+*   Display size is hardcoded to 128x32.
+*
+* AUTHOR: Linus Gunnarsson    
+*/
 #ifndef DISPLAY_LIB 
 #define DISPLAY_LIB
 #include <stdio.h>
