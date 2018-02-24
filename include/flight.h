@@ -10,6 +10,7 @@
 #define _PWM_FREQ 100 
 
 void Init();
+extern void _enable_interrupt();
 
 struct {
   uint8_t red;

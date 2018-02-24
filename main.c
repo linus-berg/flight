@@ -65,9 +65,9 @@ int main(void) {
 
 void Init() {
 	/* Set up SPI as master */
-	SPI2CON = 0;
-	SPI2BRG = 4;
-	SPI2STATCLR &= ~0x40;
+  SPI2CON = 0;
+  SPI2BRG = 4;
+  SPI2STATCLR &= ~0x40;
   SPI2CON |= 0x60;
   SPI2CONSET = 0x8000;
   
@@ -101,7 +101,7 @@ void Init() {
   Display_Logo();
   delay(2000);
   Display_Clear();
-  enable_interrupt();
+  _enable_interrupt();
 }
 
 

@@ -119,8 +119,8 @@ _gen_exception:
 
 .end _gen_exception
 
-.global enable_interrupt
-enable_interrupt:
+.global _enable_interrupt
+_enable_interrupt:
   ei
   jr $ra
   nop
