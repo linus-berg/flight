@@ -4,7 +4,7 @@
 #include "include/flight.h"
 #include "include/display.h"
 #include "include/msgeq.h"
-#include "include/UART.h"
+#include "include/uart.h"
 
 #define DEBUG 1 
 #define _VERSION_ "0.0.1a"

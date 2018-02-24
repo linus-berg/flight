@@ -2,7 +2,7 @@
 #define FLIGHT_H_
 
 #include <stdint.h>
-#include "UART.h"
+#include "uart.h"
 #include "sys.h"
 
 void Init();
