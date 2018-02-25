@@ -15,16 +15,19 @@ void user_isr() {
     rx = U1RXREG & 0xFF;
     if (rx == 0x1) {
       LED_CON.red = LED_CON.red ? 0 : 1;
-      uart_String(&U1TXREG, &U1STA, "Red was set to ", 0);
-      uart_String(&U1TXREG, &U1STA, itoaconv(LED_CON.red), 1);
+      uart_TX(&U1TXREG, &U1STA, LED_CON.red ? 0x11 : 0x01);
+      /*uart_String(&U1TXREG, &U1STA, "Red was set to ", 0);
+      uart_String(&U1TXREG, &U1STA, itoaconv(LED_CON.red), 1);*/
     } else if (rx == 0x2) {
       LED_CON.green = LED_CON.green ? 0 : 1;
-      uart_String(&U1TXREG, &U1STA, "Green was set to ", 0);
-      uart_String(&U1TXREG, &U1STA, itoaconv(LED_CON.green), 1);
+      uart_TX(&U1TXREG, &U1STA, LED_CON.green ? 0x12 : 0x02);
+      /*uart_String(&U1TXREG, &U1STA, "Green was set to ", 0);
+      uart_String(&U1TXREG, &U1STA, itoaconv(LED_CON.green), 1);*/
     } else if (rx = 0x3) {
       LED_CON.blue = LED_CON.blue ? 0 : 1;
-      uart_String(&U1TXREG, &U1STA, "Blue was set to ", 0);
-      uart_String(&U1TXREG, &U1STA, itoaconv(LED_CON.blue), 1);
+      uart_TX(&U1TXREG, &U1STA, LED_CON.blue ? 0x13 : 0x03);
+      /*uart_String(&U1TXREG, &U1STA, "Blue was set to ", 0);
+      uart_String(&U1TXREG, &U1STA, itoaconv(LED_CON.blue), 1);*/
     }
   }
   IFS(0) &= ~(1 << 27);
