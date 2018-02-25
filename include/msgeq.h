@@ -14,7 +14,7 @@
 */
 #ifndef MSGEQ7_H_
 #define MSGEQ7_H_
-
+#include "flight.h"
 #define _MSGEQ7_STROBE 0x2
 #define _MSGEQ7_RESET 0x4
 
@@ -22,6 +22,7 @@ void msgeq_Init(volatile unsigned *port, uint8_t port_bit, uint8_t port_an);
 int msgeq_Read();
 
 void msgeq_Init(volatile unsigned *port, uint8_t port_bit, uint8_t port_an) {
+
   AD1PCFG &= ~(0x1 << port_an);
   *port |= (0x1 << port_bit);
   AD1CON1 = (0x4 << 8) | (0x7 << 5);
@@ -37,15 +38,16 @@ void msgeq_Init(volatile unsigned *port, uint8_t port_bit, uint8_t port_an) {
   PORTD &= ~_MSGEQ7_RESET;
 }
 
-int msgeq_Read() {
- int freq = 0;
- PORTD &= ~_MSGEQ7_STROBE;
- AD1CON1 |= (0x1 << 1);
- while(!(AD1CON1 & (0x1 << 1)));
- while(!(AD1CON1 & 0x1));
- /* Get the analog value */
- freq = ADC1BUF0;
- PORTD |= _MSGEQ7_STROBE;
- return freq;
+uint16_t msgeq_Read() {
+  uint16_t freq = 0;
+  PORTD &= ~_MSGEQ7_STROBE;
+  delay(8000);
+  AD1CON1 |= (0x1 << 1);
+  while(!(AD1CON1 & (0x1 << 1)));
+  while(!(AD1CON1 & 0x1));
+  /* Get the analog value */
+  freq = ADC1BUF0;
+  PORTD |= _MSGEQ7_STROBE;
+  return freq;
 }
 #endif

@@ -62,11 +62,9 @@ int main(void) {
     for (uint8_t i = 0; i < 7; i++) {  
       freq[i] = msgeq_Read() - 100 < 30 ? 0 : msgeq_Read() - 100;
       display_Bar(i, freq[i]);
-      delay(1);
     }
-//    uart_String(&U1TXREG, &U1STA, itoaconv(freq[0]), 1);
-    PORTE = 0xFF >> (8 - (uint8_t)((8.0 / 1023.0) * freq[0])); 
-    OC1RS = (400.0 / 950) * (freq[0] + freq[1]) / 2;
+    PORTE = 0xFF >> (8 - (uint8_t)((8.0 / 980) * freq[0])); 
+    OC1RS = (200.0 / 1023.0) * freq[0];
   }
 }
 
@@ -89,7 +87,8 @@ void Init() {
   /* PWM Output. */
   /* PRx = (FPB / PWM_FREQ) - 1 */ 
   OC1CON = 0x6;
-  PR2 = (PB_CLK / PWM_FREQ) - 1; 
+  //PR2 = (PB_CLK / PWM_FREQ) - 1; 
+  PR2 = 1023;
   T2CONSET = 0x8000;
   OC1R = PR2/2;
   OC1RS = 200;
