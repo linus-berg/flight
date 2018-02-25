@@ -63,7 +63,9 @@ int main(void) {
       freq[i] = msgeq_Read() - 100 < 30 ? 0 : msgeq_Read() - 100;
       display_Bar(i, freq[i]);
       delay(1);
-    } 
+    }
+//    uart_String(&U1TXREG, &U1STA, itoaconv(freq[0]), 1);
+    PORTE = 0xFF >> (8 - (uint8_t)((8.0 / 1023.0) * freq[0])); 
     OC1RS = (400.0 / 950) * (freq[0] + freq[1]) / 2;
   }
 }
@@ -82,7 +84,8 @@ void Init() {
   LED_CON.green = 1;
   LED_CON.blue = 1;
   LED_CON.enabled = 1;
-  
+  TRISE &= ~0xFF;
+  PORTE &= ~0xFF; 
   /* PWM Output. */
   /* PRx = (FPB / PWM_FREQ) - 1 */ 
   OC1CON = 0x6;

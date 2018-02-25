@@ -122,9 +122,16 @@ void display_Bar(uint8_t col, uint16_t freq) {
   } else {
     bars[col] = freq;
   }
+  /*
+  * IMPORTANT: This part is bad, shifting by 32 is undefined behaviour.
+  * In our case it works, so fuck it.
+  * P.S: Really fucking bad.
+  */
   unsigned int intensity = 0xFFFFFFFF;
   intensity = intensity >> (uint8_t)(32 - (32.0 / 1023.0) * freq);
-  
+  /* Quick hacky fix for the overflow. TODO: Make this code correct.*/
+  intensity = intensity == -1 ? 0 : intensity;
+
   PORTF &= ~DISPLAY_DATA;
   display_SetPage(0, 3);
   display_SetColumn(1 + (col * 18), 19 + (col * 18));
