@@ -46,7 +46,6 @@ void uart_String(volatile unsigned *tx, volatile unsigned *sta,
 }
 
 void uart_Baud(volatile unsigned *brg, int baud_rate) {
-  /* Peripheral clock */
   *brg = (PB_CLK / (16 * baud_rate)) - 1;
 }
 #endif

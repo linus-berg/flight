@@ -86,12 +86,28 @@ void display_Init() {
   spi_TX(0xFF);
 }
 
+/*
+  Set active columns on display.
+  ARGS:
+    uint8_t Starting column (0:127).
+    uint8_t End column (0:127).
+  NOTE:
+    The display automatically increments columns on data write.
+*/
 inline void display_SetColumn(uint8_t start_col, uint8_t end_col) {
   spi_TX(0x21);
   spi_TX(start_col % 128);
   spi_TX(end_col);
 }
 
+/*
+  Set active pages on display.
+  ARGS:
+    uint8_t Starting page (0:3).
+    uint8_t End page (0:3).
+  NOTE:
+    The display automatically switches to next page on column overflow.
+*/
 inline void display_SetPage(uint8_t page, uint8_t end_page) {
   spi_TX(0x22);
   spi_TX(page % 4);
@@ -110,12 +126,23 @@ void display_Clear() {
   }
 }
 
+/*
+  Print a letter to the display.
+  ARGS:
+    uint8_t Letter to print (from font[]).
+*/
 void display_Letter(uint8_t letter) {
   for (uint8_t col = 0; col < 5; col++) {
     spi_TX(font[letter][col]);
   }
 }
 
+/*
+  Display a bar graph with the intensity of the given frequency.
+  ARGS:
+    uint8_t Column (0:7).
+    uint8_t Frequency (0:1023).
+*/
 void display_Bar(uint8_t col, uint16_t freq) {
   if (freq == bars[col]) {
     return;
@@ -150,6 +177,7 @@ void display_Bar(uint8_t col, uint16_t freq) {
   }
 }
 
+/* Just some fancy stuff. */
 void display_Logo() {
   /* Top Border. */
   PORTF &= ~DISPLAY_DATA;

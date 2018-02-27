@@ -20,6 +20,13 @@ void delay(int delay) {
   for(int i = 0; i < delay; i++);
 }
 
+/*
+  Send SPI data to the display
+  ARGS:
+    uint8_t Byte of data.
+  RETURN:
+    int
+*/
 int spi_TX(uint8_t data) {
 	while (!(SPI2STAT & 0x08));
 	SPI2BUF = data;
