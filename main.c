@@ -57,14 +57,20 @@ int main(void) {
   /* Some frequency shit */
   int freq[] = {0, 0, 0, 0, 0, 0, 0};
   for(;;) {
-    PORTD |= _MSGEQ7_RESET;
-    PORTD &= ~_MSGEQ7_RESET;
-    for (uint8_t i = 0; i < 7; i++) {  
-      freq[i] = msgeq_Read() - 100 < 30 ? 0 : msgeq_Read() - 100;
+    PORTB |= _MSGEQ7_RESET;
+    PORTB &= ~_MSGEQ7_RESET;
+    for (uint8_t i = 0; i < 7; i++) {
+      /*
+        Do not combine the ternary operator and the first freq[i] statement
+        msgeq_Read automatically advances the MSGEQ7 multiplexor to next
+        frequency.
+      */
+      freq[i] = msgeq_Read() - 100;
+      freq[i] = freq[i] < 30 ? 0 : freq[i];
       display_Bar(i, freq[i]);
     }
     PORTE = 0xFF >> (8 - (uint8_t)((8.0 / 980) * freq[0])); 
-    OC1RS = (200.0 / 1023.0) * freq[0];
+    OC1RS = 511;//(200.0 / 1023.0) * freq[0];
   }
 }
 

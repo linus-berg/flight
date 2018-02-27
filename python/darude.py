@@ -4,7 +4,7 @@ from tkinter import *
 
 ser = Serial("/dev/ttyUSB0" , 9600, timeout=0, writeTimeout=0)
 root = Tk()
-root.wm_title("Flight Control Centre")
+root.wm_title("Flight Control Tower")
 
 def red_led():
     ser.write(b'\x01')
