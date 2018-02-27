@@ -47,6 +47,6 @@ uint16_t msgeq_Read() {
   /* Get the analog value */
   freq = ADC1BUF0;
   PORTB |= _MSGEQ7_STROBE;
-  return freq;
+  return ((freq - 100) < 30 ? 0 : (freq - 100));
 }
 #endif

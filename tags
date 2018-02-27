@@ -1,0 +1,110 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ASFILES	Makefile	/^ASFILES         = $(wildcard *.S)$/;"	m
+B	python/darude.py	/^B = Button(root, text ="Blue", bg="#00FFFF", activebackground="#00FFFF", command = blue_led)$/;"	v
+CFILES	Makefile	/^CFILES          = $(wildcard *.c)$/;"	m
+DEBUG	main.c	9;"	d	file:
+DEPDIR	Makefile	/^DEPDIR = .deps$/;"	m
+DEVICE	Makefile	/^DEVICE		= 32MX320F128H$/;"	m
+DISPLAY_DATA	include/display.h	29;"	d
+DISPLAY_H_	include/display.h	19;"	d
+DISPLAY_PORTF_MASK	include/display.h	25;"	d
+DISPLAY_PORTG_MASK	include/display.h	26;"	d
+DISPLAY_RESET	include/display.h	30;"	d
+DISPLAY_VBAT	include/display.h	27;"	d
+DISPLAY_VDD	include/display.h	28;"	d
+ELFFILE	Makefile	/^ELFFILE		= $(PROGNAME).elf$/;"	m
+FLIGHT_H_	include/flight.h	2;"	d
+G	python/darude.py	/^G = Button(root, text ="Green", bg="#00ff00", activebackground="#00ff00", command = green_led)$/;"	v
+HEXFILE	Makefile	/^HEXFILE		= $(PROGNAME).hex$/;"	m
+ITOA_BUFSIZ	include/flight.h	30;"	d
+Init	main.c	/^void Init() {$/;"	f
+LED_CON	include/flight.h	/^} LED_CON;$/;"	v	typeref:struct:__anon1
+LINKSCRIPT	Makefile	/^LINKSCRIPT	:= p$(shell echo "$(DEVICE)" | tr '[:upper:]' '[:lower:]').ld$/;"	m
+MATH_H_	include/math.h	2;"	d
+MSGEQ7_H_	include/msgeq.h	16;"	d
+OBJFILES	Makefile	/^OBJFILES        = $(CFILES:.c=.c.o)$/;"	m
+PB_CLK	include/sys.h	4;"	d
+PROGNAME	Makefile	/^PROGNAME	= outfile$/;"	m
+PWM_FREQ	include/sys.h	5;"	d
+R	python/darude.py	/^R = Button(root, text ="Red", bg="#ff0000", activebackground="#ff0000", command = red_led)$/;"	v
+STUB	vectors.S	/^STUB 0$/;"	l
+SYMSFILES	Makefile	/^SYMSFILES	      = $(wildcard *.syms)$/;"	m
+SYS	include/sys.h	2;"	d
+SYS_CLK	include/sys.h	3;"	d
+TTYBAUD	Makefile	/^TTYBAUD		?=115200$/;"	m
+TTYDEV	Makefile	/^TTYDEV		?=\/dev\/ttyUSB0$/;"	m
+UART_H_	include/uart.h	13;"	d
+_MSGEQ7_RESET	include/msgeq.h	18;"	d
+_MSGEQ7_STROBE	include/msgeq.h	17;"	d
+_VERSION_	main.c	10;"	d	file:
+__use_isr_install	vectors.S	/^__use_isr_install:$/;"	l
+_delay	vectors.S	/^_delay:$/;"	l
+_enable_interrupt	vectors.S	/^_enable_interrupt:$/;"	l
+_gen_exception	vectors.S	/^_gen_exception:$/;"	l
+_isr_primary_install	vectors.S	/^_isr_primary_install:$/;"	l
+_isr_stub	vectors.S	/^_isr_stub:$/;"	l
+_nmi_handler	stubs.c	/^void _nmi_handler() {$/;"	f
+_on_bootstrap	stubs.c	/^void _on_bootstrap() {$/;"	f
+_on_reset	stubs.c	/^void _on_reset() {$/;"	f
+abs	include/math.h	/^int abs (int n) {$/;"	f
+bars	include/display.h	/^static int bars[] = {0, 0, 0, 0, 0, 0, 0};$/;"	v
+blue	include/flight.h	/^  uint8_t blue;$/;"	m	struct:__anon1
+blue_led	python/darude.py	/^def blue_led():$/;"	f
+client	python/test.py	/^import spotipy.client as client$/;"	i
+delay	include/flight.h	/^void delay(int delay) {$/;"	f
+delay_return	vectors.S	/^  delay_return:$/;"	l
+df	Makefile	/^df = $(DEPDIR)\/$(*F)$/;"	m
+display_Bar	include/display.h	/^void display_Bar(uint8_t col, uint16_t freq) {$/;"	f
+display_Clear	include/display.h	/^void display_Clear() {$/;"	f
+display_Init	include/display.h	/^void display_Init() {$/;"	f
+display_Letter	include/display.h	/^void display_Letter(uint8_t letter) {$/;"	f
+display_Logo	include/display.h	/^void display_Logo() {$/;"	f
+display_SetColumn	include/display.h	/^inline void display_SetColumn(uint8_t start_col, uint8_t end_col) {$/;"	f
+display_SetPage	include/display.h	/^inline void display_SetPage(uint8_t page, uint8_t end_page) {$/;"	f
+enabled	include/flight.h	/^  uint8_t enabled;$/;"	m	struct:__anon1
+font	include/display.h	/^static const int font[][5] = {$/;"	v
+green	include/flight.h	/^  uint8_t green;$/;"	m	struct:__anon1
+green_led	python/darude.py	/^def green_led():$/;"	f
+inverted	include/flight.h	/^  uint8_t inverted;$/;"	m	struct:__anon1
+itoaconv	include/flight.h	/^char * itoaconv( int num )$/;"	f
+loop_inner	vectors.S	/^    loop_inner:$/;"	l
+loop_outer	vectors.S	/^  loop_outer:$/;"	l
+main	main.c	/^int main(void) {$/;"	f
+msgeq_Init	include/msgeq.h	/^void msgeq_Init(volatile unsigned *port, uint8_t port_bit, uint8_t port_an) {$/;"	f
+msgeq_Read	include/msgeq.h	/^uint16_t msgeq_Read() {$/;"	f
+playlist_id	python/test.py	/^  playlist_id = sys.argv[2]$/;"	v
+pprint	python/test.py	/^import pprint$/;"	i
+readSerial	python/darude.py	/^def readSerial():$/;"	f
+red	include/flight.h	/^  uint8_t red;$/;"	m	struct:__anon1
+red_led	python/darude.py	/^def red_led():$/;"	f
+results	python/test.py	/^  results = sp.current_user_playing_track()$/;"	v
+root	python/darude.py	/^root = Tk()$/;"	v
+scope	python/darude.py	/^scope = 'user-read-currently-playing user-modify-playback-state'$/;"	v
+scope	python/test.py	/^scope = 'user-read-currently-playing user-modify-playback-state'$/;"	v
+ser	python/darude.py	/^ser = Serial("\/dev\/ttyUSB0" , 9600, timeout=0, writeTimeout=0)$/;"	v
+sp	python/darude.py	/^  sp = spotipy.Spotify(auth=token)$/;"	v
+sp	python/test.py	/^  sp = spotipy.Spotify(auth=token)$/;"	v
+spi_TX	include/flight.h	/^int spi_TX(uint8_t data) {$/;"	f
+spotipy	python/darude.py	/^import spotipy$/;"	i
+spotipy	python/darude.py	/^import spotipy.util as util$/;"	i
+spotipy	python/test.py	/^import spotipy$/;"	i
+spotipy	python/test.py	/^import spotipy.client as client$/;"	i
+spotipy	python/test.py	/^import spotipy.util as util$/;"	i
+sys	python/darude.py	/^import sys$/;"	i
+sys	python/test.py	/^import sys$/;"	i
+token	python/darude.py	/^token = util.prompt_for_user_token('dalk', scope)$/;"	v
+token	python/test.py	/^token = util.prompt_for_user_token(username, scope)$/;"	v
+track_ids	python/test.py	/^  track_ids = sys.argv[3:]$/;"	v
+uart_Baud	include/uart.h	/^void uart_Baud(volatile unsigned *brg, int baud_rate) {$/;"	f
+uart_Init	include/uart.h	/^void uart_Init(volatile unsigned *sta, volatile unsigned *mode,$/;"	f
+uart_String	include/uart.h	/^void uart_String(volatile unsigned *tx, volatile unsigned *sta,$/;"	f
+uart_TX	include/uart.h	/^void uart_TX(volatile unsigned *tx, volatile unsigned *sta, uint8_t byte) {$/;"	f
+user_isr	main.c	/^void user_isr() {$/;"	f
+username	python/test.py	/^  username = sys.argv[1]$/;"	v
+util	python/darude.py	/^import spotipy.util as util$/;"	i
+util	python/test.py	/^import spotipy.util as util$/;"	i

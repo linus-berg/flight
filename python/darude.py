@@ -1,10 +1,19 @@
 # This is a really wonky controller, please do not look at this code.
 from serial import *
 from tkinter import *
-
+import sys
+import spotipy
+import spotipy.util as util
 ser = Serial("/dev/ttyUSB0" , 9600, timeout=0, writeTimeout=0)
 root = Tk()
 root.wm_title("Flight Control Tower")
+
+#Spotify connection
+scope = 'user-read-currently-playing user-modify-playback-state'
+token = util.prompt_for_user_token('dalk', scope)
+if token:
+  sp = spotipy.Spotify(auth=token)
+  sp.trace = False
 
 def red_led():
     ser.write(b'\x01')
@@ -37,6 +46,15 @@ def readSerial():
                 B.configure(bg = "#696969", activebackground="#696969")
             if (c == b'\x13'):
                 B.configure(bg = "#00ffff", activebackground="#00ffff")
+            if (c == b'\x50'):
+                if (sp.currently_playing()['is_playing']):
+                    sp.pause_playback()
+                else:
+                    sp.start_playback()
+            if (c == b'\x51'):
+                sp.previous_track()
+            if (c == b'\x52'):
+                sp.next_track()
         if (ser.inWaiting() == 0):
           break
     root.after(10, readSerial)

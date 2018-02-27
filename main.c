@@ -10,27 +10,35 @@
 #define _VERSION_ "0.0.1a"
 
 void user_isr() {
-  uint8_t rx;
-  while((U1STA & 0x1)) {
-    rx = U1RXREG & 0xFF;
-    if (rx == 0x1) {
-      LED_CON.red = LED_CON.red ? 0 : 1;
-      uart_TX(&U1TXREG, &U1STA, LED_CON.red ? 0x11 : 0x01);
-      /*uart_String(&U1TXREG, &U1STA, "Red was set to ", 0);
-      uart_String(&U1TXREG, &U1STA, itoaconv(LED_CON.red), 1);*/
-    } else if (rx == 0x2) {
-      LED_CON.green = LED_CON.green ? 0 : 1;
-      uart_TX(&U1TXREG, &U1STA, LED_CON.green ? 0x12 : 0x02);
-      /*uart_String(&U1TXREG, &U1STA, "Green was set to ", 0);
-      uart_String(&U1TXREG, &U1STA, itoaconv(LED_CON.green), 1);*/
-    } else if (rx = 0x3) {
-      LED_CON.blue = LED_CON.blue ? 0 : 1;
-      uart_TX(&U1TXREG, &U1STA, LED_CON.blue ? 0x13 : 0x03);
-      /*uart_String(&U1TXREG, &U1STA, "Blue was set to ", 0);
-      uart_String(&U1TXREG, &U1STA, itoaconv(LED_CON.blue), 1);*/
-    }
+  if ((((IFS(0) >> 19) & 0x1) == 1)) {
+    uart_TX(&U1TXREG, &U1STA, 0x50);
+    IFS(0) &= ~(0x00080000);  // reset INT4 flagg till 0 (bit 19)
   }
-  IFS(0) &= ~(1 << 27);
+  if ((((IFS(0) >> 15) & 0x1) == 1)) {
+    uart_TX(&U1TXREG, &U1STA, 0x51);
+    IFS(0) &= ~(0x00008000);  // reset INT3 flagg till 0 (bit 15)
+  }
+  if ((((IFS(0) >> 11) & 0x1) == 1)) {
+    uart_TX(&U1TXREG, &U1STA, 0x52);
+    IFS(0) &= ~(0x00000800);  // reset INT3 flagg till 0 (bit 15)
+  }
+  if (IFS(0) >> 27) {
+    uint8_t rx;
+    while((U1STA & 0x1)) {
+      rx = U1RXREG & 0xFF;
+      if (rx == 0x1) {
+        LED_CON.red = LED_CON.red ? 0 : 1;
+        uart_TX(&U1TXREG, &U1STA, LED_CON.red ? 0x11 : 0x01);
+      } else if (rx == 0x2) {
+        LED_CON.green = LED_CON.green ? 0 : 1;
+        uart_TX(&U1TXREG, &U1STA, LED_CON.green ? 0x12 : 0x02);
+      } else if (rx = 0x3) {
+        LED_CON.blue = LED_CON.blue ? 0 : 1;
+        uart_TX(&U1TXREG, &U1STA, LED_CON.blue ? 0x13 : 0x03);
+      }
+    }
+    IFS(0) &= ~(1 << 27);
+  }
 }
 
 int main(void) {
@@ -56,7 +64,7 @@ int main(void) {
 
   /* Some frequency shit */
   int freq[] = {0, 0, 0, 0, 0, 0, 0};
-  for(;;) {
+  for (;;) {
     PORTB |= _MSGEQ7_RESET;
     PORTB &= ~_MSGEQ7_RESET;
     for (uint8_t i = 0; i < 7; i++) {
@@ -65,12 +73,11 @@ int main(void) {
         msgeq_Read automatically advances the MSGEQ7 multiplexor to next
         frequency.
       */
-      freq[i] = msgeq_Read() - 100;
-      freq[i] = freq[i] < 30 ? 0 : freq[i];
+      freq[i] = msgeq_Read();
       display_Bar(i, freq[i]);
     }
     PORTE = 0xFF >> (8 - (uint8_t)((8.0 / 980) * freq[0])); 
-    OC1RS = 511;//(200.0 / 1023.0) * freq[0];
+    OC1RS = (200.0 / 1023.0) * ((freq[0] + freq[1]) / 2);
   }
 }
 
@@ -82,18 +89,26 @@ void Init() {
   SPI2STATCLR &= ~0x40;
   SPI2CON |= 0x60;
   SPI2CONSET = 0x8000;
-  
+
+  TRISD |= 0x800;   // switch 4(längst vänster) påslagen
+  TRISD |= 0x400;   // switch 3(näst längst vänster) påslagen
+  TRISD |= 0x200;
+  IEC(0) |= 0x88800;   // interrupt enable control (bit 15=INT3 och 19=INT4)
+  IPC(2) |= 0x1A000000;
+  IPC(3) |= 0x1B000000; // INT3 priority
+  IPC(4) |= 0x1C000000; // INT4 priority
   /* Default setup, RGB and enabled. */
   LED_CON.red = 1;
   LED_CON.green = 1;
   LED_CON.blue = 1;
+  LED_CON.inverted = 0;
   LED_CON.enabled = 1;
   TRISE &= ~0xFF;
   PORTE &= ~0xFF; 
+
   /* PWM Output. */
   /* PRx = (FPB / PWM_FREQ) - 1 */ 
   OC1CON = 0x6;
-  //PR2 = (PB_CLK / PWM_FREQ) - 1; 
   PR2 = 1023;
   T2CONSET = 0x8000;
   OC1R = PR2/2;
