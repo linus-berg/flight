@@ -84,6 +84,7 @@ void display_Init() {
   /* Contrast */
   spi_TX(0x81);
   spi_TX(0xFF);
+  display_Clear(); 
 }
 
 /*
@@ -218,5 +219,7 @@ void display_Logo() {
   display_Letter(4);
   spi_TX(0x0);
   display_Letter(5);  
+  _delay(2000);
+  display_Clear();
 }
 #endif

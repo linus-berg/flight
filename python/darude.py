@@ -36,7 +36,6 @@ def readSerial():
   while True:
     if (ser.inWaiting() > 0):
       c = ser.read(ser.inWaiting())
-      print(c)
       if (c == b'\x01'):
         R.configure(bg = "#696969", activebackground="#696969")
       if (c == b'\x11'):
@@ -52,12 +51,16 @@ def readSerial():
       if (c == b'\x50'):
         if (sp.currently_playing()['is_playing']):
           sp.pause_playback()
+          print("Paused playback")
         else:
           sp.start_playback()
+          print("Started Playback")
       if (c == b'\x51'):
         sp.previous_track()
+        print("Previous Track")
       if (c == b'\x52'):
         sp.next_track()
+        print("Next Track")
     if (ser.inWaiting() == 0):
       break
   root.after(10, readSerial)
