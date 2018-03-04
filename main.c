@@ -60,7 +60,7 @@ int main(void) {
     uart_String(&U1TXREG, &U1STA, itoaconv(PR2), 1);
   #endif
 
-  int freq[] = {0, 0, 0, 0, 0, 0, 0};
+  uint16_t freq[] = {0, 0, 0, 0, 0, 0, 0};
   uint16_t pwm = 0;
   for (;;) {
     PORTB |= _MSGEQ7_RESET;
@@ -70,11 +70,10 @@ int main(void) {
       display_Bar(i, freq[i]);
     }
     PORTE = 0xFF >> (8 - (uint8_t)((8.0 / 980) * freq[0]));
-    pwm = (freq[0] + freq[1]) / 2;
+    pwm = (freq[0] + freq[1]) / 2.0;
     OC1RS = LED_CON.red ? pwm : 0;
     OC2RS = LED_CON.green ? pwm : 0;
     OC3RS = LED_CON.blue ? pwm : 0;
-    //OC3RS = pwm;
   }
 }
 
@@ -100,7 +99,6 @@ void Init() {
   LED_CON.red = 1;
   LED_CON.green = 1;
   LED_CON.blue = 1;
-  LED_CON.enabled = 1;
   TRISE &= ~0xFF;
   PORTE &= ~0xFF; 
 
