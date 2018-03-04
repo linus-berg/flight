@@ -61,6 +61,7 @@ int main(void) {
   #endif
 
   int freq[] = {0, 0, 0, 0, 0, 0, 0};
+  uint16_t pwm = 0;
   for (;;) {
     PORTB |= _MSGEQ7_RESET;
     PORTB &= ~_MSGEQ7_RESET;
@@ -69,15 +70,11 @@ int main(void) {
       display_Bar(i, freq[i]);
     }
     PORTE = 0xFF >> (8 - (uint8_t)((8.0 / 980) * freq[0]));
-    if (LED_CON.enabled) {
-      OC1RS = LED_CON.red ? (200.0 / 1023.0) * ((freq[0] + freq[1]) / 2) : 0;
-      OC2RS = LED_CON.green ? (200.0 / 1023.0) * ((freq[0] + freq[1]) / 2) : 0;
-      OC3RS = LED_CON.blue ? (200.0 / 1023.0) * ((freq[0] + freq[1]) / 2) : 0;
-    } else {
-      OC1RS = 0; 
-      OC2RS = 0; 
-      OC3RS = 0; 
-    }
+    pwm = (freq[0] + freq[1]) / 2;
+    OC1RS = LED_CON.red ? pwm : 0;
+    OC2RS = LED_CON.green ? pwm : 0;
+    OC3RS = LED_CON.blue ? pwm : 0;
+    //OC3RS = pwm;
   }
 }
 
@@ -118,12 +115,12 @@ void Init() {
   
   OC2CON = 0x6;
   OC2R = PR2/2;
-  OC2RS = 200;
+  OC2RS = 0;
   OC2CONSET = 0x8000;
   
   OC3CON = 0x6;
   OC3R = PR2/2;
-  OC3RS = 200;
+  OC3RS = 0;
   OC3CONSET = 0x8000;
 
   msgeq_Init(&TRISB, 4, 4);

@@ -36,6 +36,7 @@ def readSerial():
   while True:
     if (ser.inWaiting() > 0):
       c = ser.read(ser.inWaiting())
+      print(c)
       if (c == b'\x01'):
         R.configure(bg = "#696969", activebackground="#696969")
       if (c == b'\x11'):
