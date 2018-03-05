@@ -1,3 +1,4 @@
+#include <pic32mx.h>
 #ifndef SYS
 #define SYS
 #define SYS_CLK 80000000
