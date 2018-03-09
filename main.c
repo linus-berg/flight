@@ -5,10 +5,9 @@
 #include "include/display.h"
 #include "include/msgeq.h"
 #include "include/uart.h"
-
+#include "include/menu.h"
 #define DEBUG 1 
 #define _VERSION_ "0.0.1a"
-
 void user_isr() {
   if ((IFS(0) >> 11) & 0x1) {
     uart_TX(&U1TXREG, &U1STA, 0x52);
@@ -21,6 +20,11 @@ void user_isr() {
   if ((IFS(0) >> 19) & 0x1) {
     uart_TX(&U1TXREG, &U1STA, 0x50);
     IFS(0) &= ~(0x00080000);
+  }
+  if ((IFS(0) >> 7) & 0x1) {
+    IFS(0) &= ~(0x80);
+    menu_Display();
+    display_Clear();
   }
   /* UART RX Interrupt */
   if ((IFS(0) >> 27) & 0x1) {
@@ -59,7 +63,6 @@ int main(void) {
     uart_String(&U1TXREG, &U1STA, "PR2: ", 0);
     uart_String(&U1TXREG, &U1STA, itoaconv(PR2), 1);
   #endif
-
   uint16_t freq[] = {0, 0, 0, 0, 0, 0, 0};
   uint16_t pwm = 0;
   for (;;) {
@@ -85,11 +88,13 @@ void Init() {
   SPI2CON |= 0x60;
   SPI2CONSET = 0x8000;
 
-  TRISD |= 0xE00;
+  TRISD |= 0xF00;
   TRISD &= ~(0x7);
   
   IEC(0) |= 0x88800;
   IEC(0) |= 1 << 27; 
+  IEC(0) |= 0x80; 
+  IPC(1) |= 0x1E000000;
   IPC(2) |= 0x1A000000;
   IPC(3) |= 0x1B000000;
   IPC(4) |= 0x1C000000;
@@ -125,6 +130,7 @@ void Init() {
   uart_Init(&U1STA, &U1MODE, &U1BRG, 0x8000, 0x1400, 9600);
   display_Init();
   display_Logo();
+  menu_Init();
   _enable_interrupt();
 }
 

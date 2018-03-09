@@ -1,9 +1,20 @@
 #include "include/display.h"
 #include "include/flight.h"
 #include <pic32mx.h>
+
+static int bars[] = {0, 0, 0, 0, 0, 0, 0};
+static const int font[][5] = {
+  {0xFF, 0x09, 0x09, 0x09, 0x01}, /* F */
+  {0xFF, 0x80, 0x80, 0x80, 0x80}, /* L */
+  {0x00, 0x00, 0xFF, 0x00, 0x00}, /* I */
+  {0xFF, 0x81, 0x91, 0x91, 0xF1}, /* G */
+  {0xFF, 0x18, 0x18, 0x18, 0xFF}, /* H */
+  {0x01, 0x01, 0xFF, 0x01, 0x01}  /* T */
+};
+
 void display_Init() {
   /* Display init */
-  PORTF = 0x70;
+  PORTF |= 0x70;
   PORTG |= (1 << 9);
   TRISFCLR = DISPLAY_PORTF_MASK;
   TRISGCLR = DISPLAY_PORTG_MASK;
@@ -67,6 +78,40 @@ inline void display_SetPage(uint8_t page, uint8_t end_page) {
   spi_TX(0x22);
   spi_TX(page % 4);
   spi_TX(end_page % 4);
+}
+
+void display_AddXY(uint8_t x, uint8_t y, uint8_t *buffer) {
+  buffer[128 * (y / 8) + x] |= 1 << (y - ((y / 8) * 8)); 
+}
+
+void display_AddObject(layer_Object obj, uint8_t *buffer) {
+  for (uint8_t row = 0; row < obj.h; row++) {
+    for (uint8_t col = 0; col < obj.w; col++) {
+      if (obj.bitmap[row] & ((0x1 << (obj.w - 1)) >> col)) {
+        display_AddXY(obj.x + col, obj.y + row, buffer);
+      }
+    }
+  }
+}
+
+void display_ClearBuffer(uint8_t *buffer) {
+  for (uint8_t row = 0; row < 4; row++) {
+    for (uint8_t col = 0; col <= 127; col++) {
+      buffer[128 * row + col] = 0; 
+    }
+  }
+}
+
+void display_RenderBuffer(uint8_t *buffer) { 
+  PORTF &= ~DISPLAY_DATA;
+  display_SetPage(0, 3);
+  display_SetColumn(0, 127);
+  PORTF |= DISPLAY_DATA;
+  for (uint8_t row = 0; row < 4; row++) {
+    for (uint8_t col = 0; col <= 127; col++) {
+      spi_TX(buffer[128 * row + col]);
+    }
+  }
 }
 
 void display_Clear() {

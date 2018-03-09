@@ -29,6 +29,16 @@
 #define DISPLAY_DATA (1 << 4)
 #define DISPLAY_RESET (1 << 9) 
 
+struct layer_Object{
+  uint8_t w;
+  uint8_t h;
+  uint8_t x;
+  uint8_t y;
+  unsigned *bitmap;
+};
+
+typedef struct layer_Object layer_Object;
+
 void display_Init();
 void display_SetColumn(uint8_t start_col, uint8_t end_col);
 void display_SetPage(uint8_t page, uint8_t end_page);
@@ -36,15 +46,8 @@ void display_Clear();
 void display_Letter(uint8_t letter);
 void display_Bar(uint8_t col, uint16_t freq);
 void display_Logo();
-
-static int bars[] = {0, 0, 0, 0, 0, 0, 0};
-static const int font[][5] = {
-  {0xFF, 0x09, 0x09, 0x09, 0x01}, /* F */
-  {0xFF, 0x80, 0x80, 0x80, 0x80}, /* L */
-  {0x00, 0x00, 0xFF, 0x00, 0x00}, /* I */
-  {0xFF, 0x81, 0x91, 0x91, 0xF1}, /* G */
-  {0xFF, 0x18, 0x18, 0x18, 0xFF}, /* H */
-  {0x01, 0x01, 0xFF, 0x01, 0x01}  /* T */
-};
-
+void display_AddXY(uint8_t x, uint8_t y, uint8_t *buffer);
+void display_AddObject(layer_Object obj, uint8_t *buffer);
+void display_RenderBuffer(uint8_t *buffer);
+void display_ClearBuffer(uint8_t *buffer);
 #endif
