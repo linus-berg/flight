@@ -75,7 +75,7 @@ void menu_Display() {
   layer_Object prev_btn_obj;
   prev_btn_obj.w = 8;
   prev_btn_obj.h = sizeof(prev_btn) / sizeof(unsigned);
-  prev_btn_obj.x = 50;
+  prev_btn_obj.x = 56;
   prev_btn_obj.y = 2;
   prev_btn_obj.bitmap = prev_btn;
   for(;;) {
@@ -103,18 +103,18 @@ void menu_Display() {
     display_RenderBuffer(menu);
     _delay(10);
     display_ClearBuffer(menu);
-    if (abs(mouse_obj.x - next_btn_obj.x) < 6 &&
-        abs(mouse_obj.y - next_btn_obj.y) < 6) {
+    if (abs(mouse_obj.x - (next_btn_obj.x + next_btn_obj.w / 2)) < 3 &&
+        abs(mouse_obj.y - (next_btn_obj.y + next_btn_obj.h / 2)) < 3) {
       uart_TX(&U1TXREG, &U1STA, 0x52);
       return;
     }
-    if (abs(mouse_obj.x - prev_btn_obj.x) < 6 &&
-        abs(mouse_obj.y - prev_btn_obj.y) < 6) {
+    if (abs(mouse_obj.x - (prev_btn_obj.x + prev_btn_obj.w / 2)) < 3 &&
+        abs(mouse_obj.y - (prev_btn_obj.y + prev_btn_obj.h / 2)) < 3) {
       uart_TX(&U1TXREG, &U1STA, 0x51);
       return;
     }
-    if (abs(mouse_obj.x - play_btn_obj.x) < 6 &&
-        abs(mouse_obj.y - play_btn_obj.y) < 6) {
+    if (abs(mouse_obj.x - (play_btn_obj.x + play_btn_obj.w / 2)) < 5 &&
+        abs(mouse_obj.y - (play_btn_obj.y + play_btn_obj.h / 2)) < 5) {
       uart_TX(&U1TXREG, &U1STA, 0x50);
       return;
     }
