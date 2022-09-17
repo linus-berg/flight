@@ -154,6 +154,8 @@ void display_Bar(uint8_t col, uint16_t freq) {
   * In our case it works, so fuck it.
   * P.S: Really fucking bad.
   */
+
+  /* Ever heard of an if statement??? Dumbass. */
   unsigned int intensity = 0xFFFFFFFF;
   intensity = intensity >> (uint8_t)(32 - (32.0 / 1023.0) * freq);
   /* Quick hacky fix for the overflow. TODO: Make this code correct.*/
